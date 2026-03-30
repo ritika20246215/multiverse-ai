@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  background: #050816;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.bg-parallel-grid {
+  background-color: #050816;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    radial-gradient(circle at top, rgba(34, 211, 238, 0.18), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(217, 70, 239, 0.16), transparent 24%);
+  background-size: 48px 48px, 48px 48px, auto, auto;
+}
+
+.input-field {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 1rem 1.1rem;
+  color: white;
+  outline: none;
+}
+
+.input-field::placeholder {
+  color: #7f8aa3;
+}
+
+.input-field:focus {
+  border-color: rgba(34, 211, 238, 0.45);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.12);
+}
