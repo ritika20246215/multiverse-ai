@@ -1,0 +1,80 @@
+{
+  "roles": [
+    {
+      "title": "AI Product Analyst",
+      "category": "AI / Product",
+      "skills": ["python", "sql", "statistics", "prompt engineering", "data storytelling", "experimentation"],
+      "trends": ["evaluation pipelines", "ai product metrics", "retrieval systems", "analytics automation"],
+      "courses": [
+        {"name": "Prompt Engineering for Product Teams", "platform": "Coursera", "duration": "4 weeks"},
+        {"name": "SQL for Data Analytics", "platform": "DataCamp", "duration": "3 weeks"}
+      ],
+      "projects": [
+        {"name": "LLM feature benchmark", "description": "Compare prompts, latency, and hallucination rates."},
+        {"name": "AI adoption dashboard", "description": "Track feature usage and activation funnels."}
+      ],
+      "certifications": [
+        {"name": "Google Data Analytics", "provider": "Google", "cost": "$39/mo"},
+        {"name": "AI Product Management", "provider": "Udacity", "cost": "$249"}
+      ]
+    },
+    {
+      "title": "Frontend Engineer",
+      "category": "Software Engineering",
+      "skills": ["javascript", "react", "typescript", "css", "testing", "performance"],
+      "trends": ["design systems", "animation", "web vitals", "ai copilots", "component architecture"],
+      "courses": [
+        {"name": "Advanced React Patterns", "platform": "Frontend Masters", "duration": "5 weeks"},
+        {"name": "TypeScript in Practice", "platform": "Udemy", "duration": "4 weeks"}
+      ],
+      "projects": [
+        {"name": "Accessible design system", "description": "Build reusable UI components with docs."},
+        {"name": "Realtime dashboard", "description": "Create a responsive analytics app with live charts."}
+      ],
+      "certifications": [
+        {"name": "Meta Front-End Developer", "provider": "Meta", "cost": "$49/mo"}
+      ]
+    },
+    {
+      "title": "Data Scientist",
+      "category": "Data / ML",
+      "skills": ["python", "machine learning", "statistics", "pandas", "visualization", "model evaluation"],
+      "trends": ["feature stores", "mlops", "evaluation", "embeddings", "synthetic data"],
+      "courses": [
+        {"name": "Machine Learning Specialization", "platform": "Coursera", "duration": "8 weeks"},
+        {"name": "MLOps Fundamentals", "platform": "DeepLearning.AI", "duration": "6 weeks"}
+      ],
+      "projects": [
+        {"name": "Career recommendation engine", "description": "Build an end-to-end model with embeddings."},
+        {"name": "Customer churn predictor", "description": "Train and evaluate a full ML pipeline."}
+      ],
+      "certifications": [
+        {"name": "TensorFlow Developer", "provider": "TensorFlow", "cost": "$100"}
+      ]
+    }
+  ],
+  "skill_categories": {
+    "technical": ["python", "javascript", "react", "typescript", "sql", "machine learning", "data structures", "api design"],
+    "analytical": ["statistics", "problem solving", "research", "data storytelling", "experimentation"],
+    "communication": ["presentation", "writing", "collaboration", "stakeholder management"],
+    "career_foundation": ["resume", "interviewing", "networking", "portfolio", "leadership"]
+  },
+  "evaluation_bank": {
+    "technical": [
+      {
+        "question": "Explain how you would ship a feature from idea to production.",
+        "reference": "Strong answers cover discovery, design, implementation, testing, deployment, monitoring, and iteration."
+      },
+      {
+        "question": "Describe how you would improve a slow application.",
+        "reference": "Strong answers mention profiling, bottleneck analysis, caching, query optimization, and measurement."
+      }
+    ],
+    "career": [
+      {
+        "question": "How do your current skills support your long-term goal?",
+        "reference": "Strong answers connect current strengths to target roles and identify gaps honestly."
+      }
+    ]
+  }
+}

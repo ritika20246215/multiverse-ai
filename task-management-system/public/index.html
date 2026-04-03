@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow Command Center</title>
+  <meta name="description" content="A production-ready task management system with drag-and-drop prioritization, exports, filters, and theme support.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <button class="sidebar-close" id="closeSidebar" aria-label="Close sidebar">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="brand-lockup">
+          <div class="brand-mark"><i class="fa-solid fa-bolt"></i></div>
+          <div>
+            <p class="eyebrow">TaskFlow</p>
+            <h1>Command Center</h1>
+          </div>
+        </div>
+        <p class="brand-copy">Organize work with a calm, high-clarity dashboard built for momentum.</p>
+      </div>
+
+      <section class="sidebar-card progress-card">
+        <div class="section-heading">
+          <span>Completion Pulse</span>
+          <strong id="completionLabel">0%</strong>
+        </div>
+        <div class="progress-wrapper">
+          <div class="progress-ring" id="progressRing" aria-hidden="true">
+            <div class="progress-ring-inner">
+              <strong id="progressValue">0%</strong>
+              <span>done</span>
+            </div>
+          </div>
+          <div class="progress-meta">
+            <p id="taskSummary">0 tasks tracked</p>
+            <p id="pendingSummary">0 pending</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="sidebar-card stats-card">
+        <div class="section-heading">
+          <span>Statistics</span>
+          <strong>Live</strong>
+        </div>
+        <div class="stats-grid">
+          <article>
+            <span>Total</span>
+            <strong id="statTotal">0</strong>
+          </article>
+          <article>
+            <span>Completed</span>
+            <strong id="statCompleted">0</strong>
+          </article>
+          <article>
+            <span>Pending</span>
+            <strong id="statPending">0</strong>
+          </article>
+          <article>
+            <span>High Priority</span>
+            <strong id="statHigh">0</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="sidebar-card">
+        <div class="section-heading">
+          <span>Status Filters</span>
+          <strong>Quick view</strong>
+        </div>
+        <div class="chip-group" id="statusFilters">
+          <button class="filter-chip active" data-status="all">All</button>
+          <button class="filter-chip" data-status="active">Active</button>
+          <button class="filter-chip" data-status="completed">Completed</button>
+        </div>
+      </section>
+
+      <section class="sidebar-card">
+        <div class="section-heading">
+          <span>Priority Filters</span>
+          <strong>Focus lane</strong>
+        </div>
+        <div class="chip-group" id="priorityFilters">
+          <button class="filter-chip active" data-priority="all">All</button>
+          <button class="filter-chip" data-priority="high">🔴 High</button>
+          <button class="filter-chip" data-priority="medium">🟠 Medium</button>
+          <button class="filter-chip" data-priority="low">🟢 Low</button>
+        </div>
+      </section>
+
+      <section class="sidebar-card export-card">
+        <div class="section-heading">
+          <span>Exports</span>
+          <strong>Portable</strong>
+        </div>
+        <div class="button-stack">
+          <button class="secondary-button" id="exportPdf">
+            <i class="fa-regular fa-file-pdf"></i>
+            Export PDF
+          </button>
+          <button class="secondary-button" id="exportCsv">
+            <i class="fa-solid fa-file-csv"></i>
+            Export CSV
+          </button>
+        </div>
+      </section>
+
+      <section class="sidebar-card theme-card">
+        <div class="section-heading">
+          <span>Appearance</span>
+          <strong>Remembered</strong>
+        </div>
+        <label class="theme-switch">
+          <input type="checkbox" id="themeToggle" aria-label="Toggle dark mode">
+          <span class="theme-switch-track">
+            <span class="theme-switch-icon sun"><i class="fa-regular fa-sun"></i></span>
+            <span class="theme-switch-icon moon"><i class="fa-regular fa-moon"></i></span>
+            <span class="theme-switch-thumb"></span>
+          </span>
+        </label>
+      </section>
+    </aside>
+
+    <main class="main-panel">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-button mobile-only" id="openSidebar" aria-label="Open sidebar">
+            <i class="fa-solid fa-bars-staggered"></i>
+          </button>
+          <div>
+            <p class="eyebrow" id="greetingLabel">Good day</p>
+            <h2 id="greetingTitle">Ready to move work forward?</h2>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <label class="search-shell">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" id="searchInput" placeholder="Search tasks, priorities, or due dates">
+          </label>
+          <div class="avatar-badge" aria-hidden="true">TF</div>
+        </div>
+      </header>
+
+      <section class="glass-panel add-task-panel">
+        <div class="section-heading horizontal">
+          <div>
+            <span>Add Task</span>
+            <strong>Create a focused next step</strong>
+          </div>
+          <p class="micro-copy">Press Enter in the title field to add quickly.</p>
+        </div>
+        <form id="taskForm" class="task-form">
+          <div class="field-group field-span-2">
+            <label for="title">Task title</label>
+            <input id="title" name="title" type="text" maxlength="120" placeholder="Write the task you want to finish" required>
+          </div>
+          <div class="field-group field-span-2">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="3" maxlength="500" placeholder="Add details, context, or a success check"></textarea>
+          </div>
+          <div class="field-group">
+            <label for="priority">Priority</label>
+            <select id="priority" name="priority">
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="dueDate">Due date</label>
+            <input id="dueDate" name="dueDate" type="date">
+          </div>
+          <div class="field-group form-actions field-span-2">
+            <button class="primary-button" type="submit">
+              <i class="fa-solid fa-plus"></i>
+              Add Task
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="glass-panel tasks-panel">
+        <div class="tasks-header">
+          <div>
+            <p class="eyebrow">Sortable Queue</p>
+            <h3 id="visibleCount">0 tasks visible</h3>
+          </div>
+          <div class="task-header-meta">
+            <span id="dragHint">Drag and drop to reorder</span>
+          </div>
+        </div>
+
+        <div id="libraryWarning" class="library-warning hidden"></div>
+
+        <div id="tasksContainer" class="tasks-list" aria-live="polite"></div>
+        <div id="emptyState" class="empty-state hidden">
+          <i class="fa-regular fa-face-smile-beam"></i>
+          <h4>No tasks match these filters</h4>
+          <p>Try clearing a filter or add a new task to get momentum going.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="taskModalBackdrop" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">Edit Task</p>
+          <h3 id="taskModalTitle">Update your task</h3>
+        </div>
+        <button class="icon-button" id="closeModal" aria-label="Close edit modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form id="editTaskForm" class="task-form modal-form">
+        <input type="hidden" id="editTaskId">
+        <div class="field-group field-span-2">
+          <label for="editTitle">Task title</label>
+          <input id="editTitle" name="editTitle" type="text" maxlength="120" required>
+        </div>
+        <div class="field-group field-span-2">
+          <label for="editDescription">Description</label>
+          <textarea id="editDescription" name="editDescription" rows="3" maxlength="500"></textarea>
+        </div>
+        <div class="field-group">
+          <label for="editPriority">Priority</label>
+          <select id="editPriority" name="editPriority">
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label for="editDueDate">Due date</label>
+          <input id="editDueDate" name="editDueDate" type="date">
+        </div>
+        <div class="field-group checkbox-field field-span-2">
+          <label class="checkbox-label">
+            <input id="editCompleted" name="editCompleted" type="checkbox">
+            <span>Mark as completed</span>
+          </label>
+        </div>
+        <div class="field-group form-actions field-span-2">
+          <button class="secondary-button" type="button" id="cancelModal">Cancel</button>
+          <button class="primary-button" type="submit">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="confirmBackdrop" aria-hidden="true">
+    <div class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <div>
+        <p class="eyebrow">Confirm Delete</p>
+        <h3 id="confirmTitle">Remove this task?</h3>
+        <p id="confirmDescription">This action cannot be undone.</p>
+      </div>
+      <div class="confirm-actions">
+        <button class="secondary-button" id="cancelDelete">Cancel</button>
+        <button class="danger-button" id="confirmDelete">Delete Task</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+  <script src="/app.js" defer></script>
+</body>
+</html>

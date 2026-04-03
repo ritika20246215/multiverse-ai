@@ -171,7 +171,7 @@ export const verifyLoginOtp = async (req, res, next) => {
       throw error;
     }
 
-    const otpRecord = await LoginOtp.findOne({ email: normalizedEmail }).sort({ createdAt: -1 });
+    const otpRecord = await LoginOtp.findOne({ email: normalizedEmail, purpose: "login" }).sort({ createdAt: -1 });
 
     if (!otpRecord) {
       const error = new Error("No valid OTP found. Request a new login code.");
@@ -216,7 +216,7 @@ export const verifyLoginOtp = async (req, res, next) => {
 
     const dailyActivity = syncDailyActivity(user);
     await user.save();
-    await LoginOtp.deleteMany({ email: normalizedEmail });
+    await LoginOtp.deleteMany({ email: normalizedEmail, purpose: "login" });
 
     const token = signToken(user._id);
 

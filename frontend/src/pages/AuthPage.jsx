@@ -84,13 +84,11 @@ const AuthPage = () => {
   }, [previewPulse]);
 
   useEffect(() => {
-    if (mode === "signup") {
-      setOtpStep(false);
-      setOtpPurpose("");
-      setOtpCode("");
-      setOtpDevPreview("");
-      setOtpEmail("");
-    }
+    setOtpStep(false);
+    setOtpPurpose("");
+    setOtpCode("");
+    setOtpDevPreview("");
+    setOtpEmail("");
   }, [mode]);
 
   const handleSubmit = async (event) => {
@@ -439,7 +437,7 @@ const AuthPage = () => {
                     disabled={submitting}
                     className="soft-button inline-flex items-center justify-center rounded-full px-6 py-3 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {submitting ? "Syncing..." : mode === "signup" ? "Enter multiverse ai" : otpStep ? "Verify OTP" : "Send OTP"}
+                    {submitting ? "Syncing..." : otpStep ? "Verify OTP" : mode === "signup" ? "Enter multiverse ai" : "Send OTP"}
                     {!submitting ? <ArrowRightIcon className="ml-2 h-5 w-5" /> : null}
                   </button>
                 </div>
