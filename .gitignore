@@ -7,5 +7,7 @@ backend/uploads
 .logs
 __pycache__
 *.pyc
+.venv
+**/.venv/
 .mongo-data
 backend/.mongo-data
