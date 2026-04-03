@@ -51,6 +51,7 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || process.env.DEEPSEEKAPIKEY;
 const DEEPSEEK_BASE_URL = process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com';
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-3.5-turbo';
+const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1';
 const CLAUDE_MODEL = process.env.CLAUDE_MODEL || 'claude-3-haiku-20240307';
 const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || 'deepseek-chat';
 
@@ -199,6 +200,31 @@ function getFallbackResponse(userMessage) {
     return responses[Math.floor(Math.random() * responses.length)];
 }
 
+function buildFallbackImageUrl(prompt) {
+    return `https://picsum.photos/seed/${encodeURIComponent(prompt)}/512/512`;
+}
+
+async function getImageResponse(prompt) {
+    if (openai) {
+        const result = await openai.images.generate({
+            model: OPENAI_IMAGE_MODEL,
+            prompt,
+            size: '1024x1024'
+        });
+
+        const image = result.data?.[0];
+        if (image?.b64_json) {
+            return { url: `data:image/png;base64,${image.b64_json}`, source: 'openai' };
+        }
+
+        if (image?.url) {
+            return { url: image.url, source: 'openai' };
+        }
+    }
+
+    return { url: buildFallbackImageUrl(prompt), source: 'fallback' };
+}
+
 // ============================================
 // API ROUTES
 // ============================================
@@ -314,6 +340,45 @@ app.post('/chat', async (req, res) => {
     }
 });
 
+app.post('/image', async (req, res) => {
+    try {
+        const { prompt } = req.body;
+
+        if (!prompt || typeof prompt !== 'string') {
+            return res.status(400).json({
+                error: 'Invalid request: prompt is required',
+                success: false
+            });
+        }
+
+        const cleanedPrompt = prompt.trim().slice(0, 1000);
+
+        if (!cleanedPrompt) {
+            return res.status(400).json({
+                error: 'Prompt cannot be empty',
+                success: false
+            });
+        }
+
+        const image = await getImageResponse(cleanedPrompt);
+
+        res.json({
+            imageUrl: image.url,
+            provider: image.source,
+            success: true
+        });
+    } catch (error) {
+        console.error('Error generating image:', error);
+
+        res.status(500).json({
+            error: 'Image generation failed',
+            imageUrl: buildFallbackImageUrl(req.body?.prompt || 'omnimind'),
+            provider: 'fallback',
+            success: false
+        });
+    }
+});
+
 // ============================================
 // ERROR HANDLING
 // ============================================
@@ -322,7 +387,7 @@ app.post('/chat', async (req, res) => {
 app.use((req, res) => {
     res.status(404).json({
         error: 'Endpoint not found',
-        availableEndpoints: ['GET /', 'POST /chat']
+        availableEndpoints: ['GET /', 'POST /chat', 'POST /image']
     });
 });
 
