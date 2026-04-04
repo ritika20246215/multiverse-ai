@@ -39,6 +39,10 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(morgan("dev"));
 
+app.get("/", (_req, res) => {
+  res.send("API is running");
+});
+
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });

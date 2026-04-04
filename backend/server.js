@@ -1,8 +1,10 @@
+import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 import { spawn } from "child_process";
 import { fileURLToPath } from "url";
-import fs from "fs";
+
+console.log("Server starting...");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,13 +15,14 @@ const port = process.env.PORT || 10000;
 const emotionServiceUrl = process.env.EMOTION_SERVICE_URL || "http://127.0.0.1:8001";
 const emotionAutoStart = String(process.env.EMOTION_AUTO_START || "true").toLowerCase() !== "false";
 const emotionServiceDir = path.resolve(__dirname, "..", "services", "emotion-service");
-let emotionServiceProcess = null;
-let emotionServiceStartPromise = null;
 const emotionStdoutLogPath = path.join(emotionServiceDir, "emotion-service.out.log");
 const emotionStderrLogPath = path.join(emotionServiceDir, "emotion-service.err.log");
 
 const requiredEnvVars = ["MONGODB_URI", "JWT_SECRET"];
 const optionalEnvVars = ["ML_API_URL", "GROQ_API_KEY"];
+
+let emotionServiceProcess = null;
+let emotionServiceStartPromise = null;
 
 const validateEnv = () => {
   const missing = requiredEnvVars.filter((key) => !process.env[key]);
@@ -50,7 +53,10 @@ const getPythonCommandCandidates = () => {
   const candidates = [];
 
   if (configured) {
-    candidates.push({ command: configured, args: ["-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8001"] });
+    candidates.push({
+      command: configured,
+      args: ["-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8001"]
+    });
   }
 
   candidates.push(
@@ -177,23 +183,23 @@ const startServer = async () => {
 
   try {
     await connectDatabase();
-    console.log("MongoDB connected ✅");
+    console.log("MongoDB connected");
 
     const server = app.listen(port, () => {
-      console.log(`Server running on port ${port} 🚀`);
+      console.log(`Server running on port ${port}`);
       warmEmotionService();
     });
 
     server.on("error", (error) => {
       if (error?.code === "EADDRINUSE") {
-        console.error(`Server port ${port} is already in use ❌`);
+        console.error(`Server port ${port} is already in use`);
         return;
       }
 
-      console.error("Server failed to start ❌", error);
+      console.error("Server failed to start", error);
     });
   } catch (error) {
-    console.error("MongoDB connection error ❌", error);
+    console.error("MongoDB connection error", error);
   }
 };
 
