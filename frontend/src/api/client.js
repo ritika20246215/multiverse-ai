@@ -24,6 +24,7 @@ const resolveApiUrl = (value) => {
 };
 
 const API_URL = resolveApiUrl(RAW_API_URL);
+const INVALID_JSON_ERROR = "The backend returned invalid JSON. Restart the backend and try again.";
 const apiOrigin = (() => {
   try {
     const url = new URL(API_URL);
@@ -35,54 +36,127 @@ const apiOrigin = (() => {
 
 const normalizePath = (path) => String(path || "").replace(/^\/aut\b/i, "/auth");
 
-const request = async (path, { method = "GET", token, body } = {}) => {
-  if (!API_URL) {
-    throw new Error("VITE_API_URL is missing. Set it in the frontend environment before starting the app.");
-  }
-
+const getUrlCandidates = (path) => {
   const normalizedPath = normalizePath(path);
-  let response;
+  const candidates = [];
+
+  const pushCandidate = (value) => {
+    if (!value || candidates.includes(value)) {
+      return;
+    }
+
+    candidates.push(value);
+  };
+
+  pushCandidate(`${API_URL}${normalizedPath}`);
 
   try {
-    response = await fetch(`${API_URL}${normalizedPath}`, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-      },
-      body: body ? JSON.stringify(body) : undefined
-    });
+    const baseUrl = new URL(API_URL);
+    const root = `${baseUrl.origin}${stripKnownApiSuffixes(baseUrl.pathname)}`.replace(/\/$/, "");
+    const authTypoPath = normalizedPath.replace(/^\/auth\b/i, "/aut");
+
+    pushCandidate(`${root}/api${normalizedPath}`.replace(/\/{2,}/g, "/").replace(":/", "://"));
+    pushCandidate(`${root}${normalizedPath}`.replace(/\/{2,}/g, "/").replace(":/", "://"));
+    pushCandidate(`${root}/api${authTypoPath}`.replace(/\/{2,}/g, "/").replace(":/", "://"));
+    pushCandidate(`${root}${authTypoPath}`.replace(/\/{2,}/g, "/").replace(":/", "://"));
   } catch {
-    throw new Error(`Unable to reach the backend. Make sure the API is running at ${apiOrigin}.`);
+    // ignore candidate expansion when API_URL is not parseable as absolute URL
   }
 
+  return candidates;
+};
+
+const tryFetchJson = async (url, options) => {
+  const response = await fetch(url, options);
   const contentType = response.headers.get("content-type") || "";
   const isJsonResponse = contentType.includes("application/json");
   const rawBody = await response.text();
 
   let data = null;
 
-  if (rawBody) {
-    if (isJsonResponse) {
-      try {
-        data = JSON.parse(rawBody);
-      } catch {
-        throw new Error("The backend returned invalid JSON. Restart the backend and try again.");
-      }
-    } else if (!response.ok) {
-      const compactText = rawBody.replace(/\s+/g, " ").trim();
-      const details = compactText ? ` Received: ${compactText.slice(0, 120)}.` : "";
-      throw new Error(`The API returned a non-JSON error response.${details} Check VITE_API_URL and make sure it points to the backend base URL, not /auth or /aut.`);
-    } else {
-      throw new Error("The backend returned an unexpected response format. Restart the backend and try again.");
+  if (rawBody && isJsonResponse) {
+    try {
+      data = JSON.parse(rawBody);
+    } catch {
+      throw new Error(INVALID_JSON_ERROR);
     }
   }
 
-  if (!response.ok) {
-    throw new Error(data?.message || "Request failed.");
+  return {
+    response,
+    rawBody,
+    isJsonResponse,
+    data
+  };
+};
+
+const request = async (path, { method = "GET", token, body } = {}) => {
+  if (!API_URL) {
+    throw new Error("VITE_API_URL is missing. Set it in the frontend environment before starting the app.");
   }
 
-  return data ?? {};
+  const normalizedPath = normalizePath(path);
+  const requestOptions = {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    body: body ? JSON.stringify(body) : undefined
+  };
+  const urlCandidates = getUrlCandidates(normalizedPath);
+  let lastResult = null;
+  let lastNetworkError = null;
+
+  for (const candidate of urlCandidates) {
+    let result;
+
+    try {
+      result = await tryFetchJson(candidate, requestOptions);
+    } catch (error) {
+      if (error instanceof Error && error.message === INVALID_JSON_ERROR) {
+        throw error;
+      }
+
+      lastNetworkError = error;
+      continue;
+    }
+
+    lastResult = result;
+
+    if (result.response.ok) {
+      return result.data ?? {};
+    }
+
+    const compactText = result.rawBody.replace(/\s+/g, " ").trim();
+    const isAuthPath = normalizedPath.startsWith("/auth/");
+    const looksLikeWrongAuthRoute = /Cannot POST \/aut\b|Cannot POST \/auth\b/i.test(compactText);
+
+    if (isAuthPath && looksLikeWrongAuthRoute) {
+      continue;
+    }
+
+    if (result.rawBody) {
+      if (!result.isJsonResponse) {
+        const details = compactText ? ` Received: ${compactText.slice(0, 120)}.` : "";
+        throw new Error(`The API returned a non-JSON error response.${details} Check VITE_API_URL and make sure it points to the backend base URL, not /auth or /aut.`);
+      }
+    }
+
+    throw new Error(result.data?.message || "Request failed.");
+  }
+
+  if (lastNetworkError) {
+    throw new Error(`Unable to reach the backend. Make sure the API is running at ${apiOrigin}.`);
+  }
+
+  if (lastResult?.rawBody) {
+    const compactText = lastResult.rawBody.replace(/\s+/g, " ").trim();
+    const details = compactText ? ` Received: ${compactText.slice(0, 120)}.` : "";
+    throw new Error(`The API returned a non-JSON error response.${details} Check VITE_API_URL and make sure it points to the backend base URL, not /auth or /aut.`);
+  }
+
+  throw new Error("Request failed.");
 };
 
 export const api = {
